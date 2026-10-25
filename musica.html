@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8" />
+        <title>ACREMA - musica do loading</title>
+        <!-- ACREMA: tocador do YouTube da tela de carregamento (convar loadscreen:youtube).
+             A tela roda em nui://loadscreen, endereco que o YouTube recusa (erro 153); ela abre esta pagina de um endereco
+             https que o YouTube aceita: 1) https://murillobissant-ui.github.io/acrema-midia/musica.html (GitHub Pages do
+             repositorio publico acrema-midia); 2) a copia do recurso, https://cfx-nui-loadscreen/html/musica.html.
+             As duas copias tem que ser iguais.
+             Conversa com a tela por postMessage: recebe { acremaVolume: 0-100 } e avisa { acremaMusica, titulo | erro }. -->
+        <style>
+            html, body { margin: 0; background: transparent; overflow: hidden; }
+        </style>
+    </head>
+    <body>
+        <div id="yt"></div>
+        <script>
+            const q = new URLSearchParams(location.search);
+            const video = q.get('v');
+            const inicio = parseInt(q.get('t') || '0') || 0;
+            let volume = parseInt(q.get('vol') || '10');
+            let yt = null;
+            let pronto = false;
+
+            const avisa = (msg) => parent.postMessage(Object.assign({ acremaMusica: true }, msg), '*');
+            const titulo = () => (yt && yt.getVideoData && yt.getVideoData().title) || '';
+            const aplica = () => {
+                if (!pronto) return;
+                yt.setVolume(volume);
+                if (volume === 0) yt.mute(); else yt.unMute();
+            };
+
+            addEventListener('message', ({ data }) => {
+                if (data && typeof data.acremaVolume === 'number') {
+                    volume = Math.round(data.acremaVolume);
+                    aplica();
+                }
+            });
+
+            window.onYouTubeIframeAPIReady = () => {
+                yt = new YT.Player('yt', {
+                    width: 160,
+                    height: 90,
+                    videoId: video,
+                    playerVars: { autoplay: 1, controls: 0, disablekb: 1, fs: 0, modestbranding: 1, playsinline: 1, rel: 0, iv_load_policy: 3, start: inicio },
+                    events: {
+                        onReady: (e) => {
+                            pronto = true;
+                            aplica();
+                            e.target.playVideo();
+                            avisa({ titulo: titulo() });
+                        },
+                        onStateChange: (e) => {
+                            if (e.data === 1) avisa({ titulo: titulo(), tocando: true });
+                            if (e.data === 0) { e.target.seekTo(inicio, true); e.target.playVideo(); }   // acabou: comeca de novo
+                        },
+                        onError: (e) => avisa({ erro: e.data }),
+                    },
+                });
+            };
+
+            if (!video) avisa({ erro: 'sem video' });
+        </script>
+        <script src="https://www.youtube.com/iframe_api" onerror="avisa({ erro: 'api' })"></script>
+    </body>
+</html>
