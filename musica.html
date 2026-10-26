@@ -5,9 +5,9 @@
         <title>ACREMA - musica do loading</title>
         <!-- ACREMA: tocador do YouTube da tela de carregamento (convar loadscreen:youtube).
              A tela roda em nui://loadscreen, endereco que o YouTube recusa (erro 153); ela abre esta pagina de um endereco
-             https que o YouTube aceita: 1) a copia do recurso, https://cfx-nui-loadscreen/html/musica.html (endereco interno
-             do FiveM, como o do celular: o YouTube nao poe anuncio); 2) https://murillobissant-ui.github.io/acrema-midia/musica.html
-             (GitHub Pages do repositorio publico acrema-midia; abre sempre, mas o YouTube pode por anuncio).
+             que o YouTube aceita: 1) a propria cidade, http://<ip>:30120/loadscreen/musica.html (o server/handover.js serve
+             este arquivo; endereco por IP, nao e site, como o do celular, que nao tem anuncio); 2) o GitHub Pages do repositorio
+             publico acrema-midia, https://murillobissant-ui.github.io/acrema-midia/musica.html (abre sempre, mas pode ter anuncio).
              As duas copias tem que ser iguais.
              Conversa com a tela por postMessage: recebe { acremaVolume: 0-100 } e avisa { acremaMusica, aberta | titulo | erro }. -->
         <style>
